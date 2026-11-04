@@ -103,6 +103,35 @@ test('a clean run prints nothing derived from the names', () => {
   }
 })
 
+test("GitHub's merge subject names a branch, which is checked, not a repository", () => {
+  // Built from pieces, as above: this file names no repository of the organization.
+  const ORG = 'awel' + 'l-health'
+  const cases = [
+    { message: `Merge pull request #1 from ${ORG}/add-notes`, status: 0, rule: /nothing to remove/ },
+    {
+      message: `Merge pull request #2 from ${ORG}/zephyr-orchard-notes`,
+      status: 1,
+      rule: /the message of commit [0-9a-f]{7}:1: a customer name from PUBLIC_SAFE_TERMS/,
+    },
+    {
+      message: `See ${ORG}/private-notes for more`,
+      status: 1,
+      rule: /the message of commit [0-9a-f]{7}:1: an awell-health repository that is not on the allowlist/,
+    },
+  ]
+  for (const { message, status, rule } of cases) {
+    const dir = makeRepo({ 'README.md': 'Nothing to see.\n' }, message)
+    try {
+      const result = runCheck(dir, { PUBLIC_SAFE_TERMS: encodeTerms([CUSTOMER]) })
+      assert.equal(result.status, status, message)
+      assert.match(result.output, rule)
+      assertNothingPrinted(result.output)
+    } finally {
+      rmSync(dir, { recursive: true, force: true })
+    }
+  }
+})
+
 test('a missing or multi-line list fails without printing a name', () => {
   const dir = makeRepo({ 'README.md': 'Nothing to see.\n' }, 'Start')
   try {

@@ -66,6 +66,9 @@ const AWELL_ID = /\bawell[a-z0-9]*-[a-z0-9-]*[a-z0-9]/gi
 // project.dataset, `project`.`dataset` or project:dataset.
 const PROJECT_DATASET = /\b(awell[a-z0-9]*-[a-z0-9-]*[a-z0-9])[`'"]?[.:][`'"]?([a-z0-9_]+)/gi
 const DATASETS_PATH = /\bdatasets\/([a-z0-9_]+)/gi
+// GitHub's subject for a merged pull request, "Merge pull request #1 from awell-health/<branch>", names a branch after
+// the organization, not a repository. It is checked without the "awell-health/", so the branch is still checked.
+const GITHUB_MERGE_SUBJECT = /^(Merge pull request #\d+ from )awell-health\//
 
 const WORD_SEPARATORS = '[\\s_.-]*'
 
@@ -237,7 +240,8 @@ function main() {
   const seenPaths = new Set()
   for (const sha of commits) {
     const short = sha.slice(0, 7)
-    checkText(`the message of commit ${short}`, git(['log', '-1', '--format=%B', sha]), termPatterns, report)
+    const message = git(['log', '-1', '--format=%B', sha]).replace(GITHUB_MERGE_SUBJECT, '$1')
+    checkText(`the message of commit ${short}`, message, termPatterns, report)
 
     for (const entry of git(['ls-tree', '-r', '-z', sha]).split('\0')) {
       // "<mode> <type> <object>\t<path>"
