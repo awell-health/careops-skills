@@ -13,7 +13,7 @@
       "source": {
         "source": "url",
         "url": "https://github.com/awell-health/bigquery-agent-prompt.git",
-        "sha": "422e30e63cf2a4634a7a29e7f51bfb973cc3906a"
+        "sha": "3c2968ecd50ff02170a6bab8b8f8415cffd8bae0"
       },
       "homepage": "https://docs.awellhealth.com/docs/data/analyze-data-with-an-ai-agent",
       "repository": "https://github.com/awell-health/bigquery-agent-prompt",
