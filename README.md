@@ -66,8 +66,9 @@ This section is for Awell.
 
 - **Add a plugin:** add an entry to
   [`.claude-plugin/marketplace.json`](./.claude-plugin/marketplace.json) whose
-  `source` points at the plugin's own public repository, and a row to the table
-  above. Run `claude plugin validate .` before you open the pull request.
+  `source` points at the plugin's own public repository, pinned to one commit
+  with `sha`, and a row to the table above. Run `claude plugin validate .`
+  before you open the pull request.
 - **The public-safe check**
   ([`public-safe.yml`](./.github/workflows/public-safe.yml)) runs on every pull
   request and every push to `main`. It fails when anything in the history, a
@@ -85,3 +86,28 @@ This section is for Awell.
     `PUBLIC_SAFE_TERMS="$(base64 < names.txt | tr -d '\n')" node scripts/check-public-safe.mjs`.
 - **The check covers this repository only.** A plugin's own repository needs
   its own review before it ships.
+
+### Releasing a new skill version
+
+Customers get the commit that a plugin's entry pins in `source.sha`, never the
+latest commit of the plugin's repository. A change merged there reaches them
+only when a pull request here moves the pin. For `bigquery-data`:
+
+1. Merge the change to `main` in
+   [bigquery-agent-prompt](https://github.com/awell-health/bigquery-agent-prompt).
+2. Here, set the entry's `sha` to that commit's full 40-character SHA:
+   `gh api repos/awell-health/bigquery-agent-prompt/commits/main --jq .sha`.
+   Pin a commit on `main`: a squash merge leaves a branch's own commits off it.
+3. Run `claude plugin validate .`. Then, in a new terminal, install from your
+   branch in a throwaway Claude Code setup:
+
+   ```bash
+   export CLAUDE_CONFIG_DIR="$(mktemp -d)"
+   claude plugin marketplace add awell-health/careops-skills#<your-branch>
+   claude plugin install bigquery-data@careops-skills
+   claude plugin list
+   ```
+
+   The version `claude plugin list` shows is the first 12 characters of the
+   pinned commit, because the plugin sets no `version` of its own.
+4. Merge. Customers get the new version at their next update.
