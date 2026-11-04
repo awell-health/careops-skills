@@ -1,0 +1,23 @@
+{
+  "name": "careops-skills",
+  "description": "Agent skills for Awell CareOps customers, as Claude Code plugins.",
+  "owner": {
+    "name": "Awell Health",
+    "email": "support@awellhealth.com",
+    "url": "https://awellhealth.com"
+  },
+  "plugins": [
+    {
+      "name": "bigquery-data",
+      "description": "Teaches Claude Awell's BigQuery data model, so it can answer questions about care flow data by writing SQL.",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/awell-health/bigquery-agent-prompt.git"
+      },
+      "homepage": "https://docs.awellhealth.com/docs/data/analyze-data-with-an-ai-agent",
+      "repository": "https://github.com/awell-health/bigquery-agent-prompt",
+      "category": "data",
+      "keywords": ["awell", "bigquery", "sql", "care flows", "data"]
+    }
+  ]
+}
