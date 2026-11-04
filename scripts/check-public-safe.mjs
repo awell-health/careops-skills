@@ -9,15 +9,18 @@
 // a GitHub repository, an awell id or a BigQuery dataset passes only when it is listed
 // below, and an internal one is never added. Customer names can't be allowlisted, and
 // listing them here would publish them, so they come from the PUBLIC_SAFE_TERMS
-// repository secret, one name per line. Names match case-insensitively, without accents,
-// and with or without the spaces, hyphens and underscores between their words.
+// repository secret: the list, one name per line, encoded as a single line of base64.
+// The encoding matters: GitHub masks each line of a secret wherever it appears in the
+// log, so with a plain list a customer called "Ann" would turn "Announcement" into
+// "***ouncement" and give the name away. Names match case-insensitively, without accents, and with or without the spaces,
+// hyphens and underscores between their words.
 //
 // A problem is reported by where it is and which rule it breaks, never by the value: the
 // log of a public repository is public too. The check fails when the list is missing,
 // rather than skip it.
 //
 // Run it from the repository root, with full history:
-//   PUBLIC_SAFE_TERMS="$(cat names.txt)" node scripts/check-public-safe.mjs
+//   PUBLIC_SAFE_TERMS="$(base64 < names.txt | tr -d '\n')" node scripts/check-public-safe.mjs
 
 import { execFileSync } from 'node:child_process'
 
@@ -78,7 +81,12 @@ function escapeRegExp(text) {
 }
 
 function readTermPatterns() {
-  const raw = process.env.PUBLIC_SAFE_TERMS || ''
+  const encoded = (process.env.PUBLIC_SAFE_TERMS || '').trim()
+  if (encoded.includes('\n')) {
+    console.error('PUBLIC_SAFE_TERMS must be one line of base64, or GitHub masks each name in the log.')
+    process.exit(1)
+  }
+  const raw = Buffer.from(encoded, 'base64').toString('utf8')
   const patterns = []
   for (const line of raw.split('\n')) {
     const words = []
@@ -189,7 +197,8 @@ function main() {
   const termPatterns = readTermPatterns()
   if (termPatterns.length === 0) {
     console.error(
-      'PUBLIC_SAFE_TERMS is empty. Set the repository secret, one customer name per line. ' +
+      'PUBLIC_SAFE_TERMS is empty. Set the repository secret to the customer names, one per line, ' +
+        "as one line of base64: base64 < names.txt | tr -d '\\n' | gh secret set PUBLIC_SAFE_TERMS. " +
         'A pull request from a fork cannot read it: push the branch to this repository instead.',
     )
     process.exit(1)

@@ -26,7 +26,8 @@ jobs:
 
       - name: Check that nothing names an internal host, project id or customer
         env:
-          # One customer name per line. The script never prints it.
+          # The customer names as one line of base64, so GitHub's log masking can't
+          # reveal one. The script never prints them.
           PUBLIC_SAFE_TERMS: ${{ secrets.PUBLIC_SAFE_TERMS }}
           # Passed as data, never interpolated into the script.
           PR_TITLE: ${{ github.event.pull_request.title }}

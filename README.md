@@ -74,11 +74,14 @@ This section is for Awell.
   commit message or the pull request names something internal or a customer.
   The rules and allowlists are at the top of
   [`scripts/check-public-safe.mjs`](./scripts/check-public-safe.mjs).
-  - Customer names come from the `PUBLIC_SAFE_TERMS` repository secret, one
-    per line. The check never prints them. It fails when the secret is
-    missing, so a pull request from a fork fails it: push the branch to this
-    repository instead.
+  - Customer names come from the `PUBLIC_SAFE_TERMS` repository secret: the
+    names, one per line, as one line of base64. A plain list would let
+    GitHub's log masking give names away. To update it:
+    `base64 < names.txt | tr -d '\n' | gh secret set PUBLIC_SAFE_TERMS`.
+  - The check never prints a name. It fails when the secret is missing, so a
+    pull request from a fork fails it: push the branch to this repository
+    instead.
   - To run it locally:
-    `PUBLIC_SAFE_TERMS="$(cat names.txt)" node scripts/check-public-safe.mjs`.
+    `PUBLIC_SAFE_TERMS="$(base64 < names.txt | tr -d '\n')" node scripts/check-public-safe.mjs`.
 - **The check covers this repository only.** A plugin's own repository needs
   its own review before it ships.
