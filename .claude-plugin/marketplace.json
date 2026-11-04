@@ -16,6 +16,7 @@
       },
       "homepage": "https://docs.awellhealth.com/docs/data/analyze-data-with-an-ai-agent",
       "repository": "https://github.com/awell-health/bigquery-agent-prompt",
+      "license": "Apache-2.0",
       "category": "data",
       "keywords": ["awell", "bigquery", "sql", "care flows", "data"]
     }

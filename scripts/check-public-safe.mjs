@@ -25,7 +25,8 @@
 import { execFileSync } from 'node:child_process'
 
 // Hosts a file, commit message or pull request may link to or name. anthropic.com,
-// claude.com and GitHub's noreply domain appear in commit trailers and PR footers.
+// claude.com and GitHub's noreply domain appear in commit trailers and PR footers, and
+// www.apache.org in the LICENSE.
 const ALLOWED_HOSTS = new Set([
   'awellhealth.com',
   'docs.awellhealth.com',
@@ -34,6 +35,7 @@ const ALLOWED_HOSTS = new Set([
   'claude.com',
   'anthropic.com',
   'users.noreply.github.com',
+  'www.apache.org',
 ])
 
 // Public repositories under github.com/awell-health that a file may name.
