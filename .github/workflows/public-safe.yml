@@ -1,10 +1,13 @@
-# Everything in this repository is published to customers. This check fails when a file
-# names an internal host, a project id customers don't query, a real BigQuery dataset or a
-# customer. See scripts/check-public-safe.mjs for the rules.
+# Everything in this repository is published to customers. This check fails when a file,
+# a commit message or a pull request names an internal host or repository, a project id
+# customers don't query, a real BigQuery dataset or a customer. The rules are in
+# scripts/check-public-safe.mjs.
 name: Public-safe check
 
 on:
   pull_request:
+    # edited: a changed title or description is checked again.
+    types: [opened, synchronize, reopened, edited]
   push:
     branches: [main]
 
@@ -17,10 +20,16 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          # Full history: a name one commit adds and the next removes is still public.
+          fetch-depth: 0
           persist-credentials: false
 
-      - name: Check that no file names an internal host, project id or customer
+      - name: Check that nothing names an internal host, project id or customer
         env:
           # One customer name per line. The script never prints it.
           PUBLIC_SAFE_TERMS: ${{ secrets.PUBLIC_SAFE_TERMS }}
+          # Passed as data, never interpolated into the script.
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_BRANCH: ${{ github.head_ref }}
         run: node scripts/check-public-safe.mjs

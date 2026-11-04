@@ -22,9 +22,10 @@ In a Claude Code session, add this marketplace once, then install the plugin:
 ```
 
 The install command opens the plugin's details. Choose **Install for you** to
-have it in every project, or one of the repository scopes to keep it to one
-project. Claude then uses the skill whenever a question is about Awell's
-BigQuery data, and `/bigquery-data:bigquery-agent-prompt` runs it by name.
+have the plugin in every project.
+
+Claude then loads the skill on its own for a question about Awell's BigQuery
+data. To run it by name, use `/bigquery-data:bigquery-agent-prompt`.
 
 From a terminal, without a session, the same two steps are:
 
@@ -35,10 +36,10 @@ claude plugin install bigquery-data@careops-skills
 
 ### Get updates
 
-Claude Code doesn't update plugins from this marketplace until auto-update is
-on. Run `/plugin`, open **Marketplaces**, select `careops-skills` and choose
-**Enable auto-update**. To update right away, choose **Update marketplace**
-there instead.
+Claude Code leaves auto-update off for marketplaces other than Anthropic's. To
+turn it on, run `/plugin`, open **Marketplaces**, select `careops-skills` and
+choose **Enable auto-update**. To update by hand instead, choose **Update
+marketplace** there, or run `/plugin marketplace update careops-skills`.
 
 ### claude.ai, the Claude desktop app and other agents
 
@@ -65,21 +66,19 @@ This section is for Awell.
 
 - **Add a plugin:** add an entry to
   [`.claude-plugin/marketplace.json`](./.claude-plugin/marketplace.json) whose
-  `source` points at the plugin's own public repository, add a row to the
-  table above, and run `claude plugin validate .` before you open the pull
-  request.
-- **The public-safe check** runs on every pull request and every push to
-  `main`
-  ([`public-safe.yml`](./.github/workflows/public-safe.yml)). It fails when a
-  file or its path names:
-  - a host that isn't on the allowlist in
-    [`scripts/check-public-safe.mjs`](./scripts/check-public-safe.mjs);
-  - an `awell-` id other than the GitHub organization and the BigQuery
-    projects customers query;
-  - a BigQuery dataset other than the `example_clinic` placeholder;
-  - a customer name from the `PUBLIC_SAFE_TERMS` repository secret, one name
-    per line. The check never prints the names, and fails when the secret is
+  `source` points at the plugin's own public repository, and a row to the table
+  above. Run `claude plugin validate .` before you open the pull request.
+- **The public-safe check**
+  ([`public-safe.yml`](./.github/workflows/public-safe.yml)) runs on every pull
+  request and every push to `main`. It fails when anything in the history, a
+  commit message or the pull request names something internal or a customer.
+  The rules and allowlists are at the top of
+  [`scripts/check-public-safe.mjs`](./scripts/check-public-safe.mjs).
+  - Customer names come from the `PUBLIC_SAFE_TERMS` repository secret, one
+    per line. The check never prints them. It fails when the secret is
     missing, so a pull request from a fork fails it: push the branch to this
     repository instead.
+  - To run it locally:
+    `PUBLIC_SAFE_TERMS="$(cat names.txt)" node scripts/check-public-safe.mjs`.
 - **The check covers this repository only.** A plugin's own repository needs
   its own review before it ships.
