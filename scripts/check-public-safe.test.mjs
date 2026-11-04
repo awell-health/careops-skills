@@ -118,6 +118,32 @@ test("GitHub's merge subject names a branch, which is checked, not a repository"
       status: 1,
       rule: /the message of commit [0-9a-f]{7}:1: an awell-health repository that is not on the allowlist/,
     },
+    // Only the subject's own "from <organization>/" is read as a branch.
+    {
+      message: `Intro\nMerge pull request #3 from ${ORG}/private-notes`,
+      status: 1,
+      rule: /the message of commit [0-9a-f]{7}:2: an awell-health repository that is not on the allowlist/,
+    },
+    {
+      message: `Merge pull request #3 from ${ORG}/${ORG}/private-notes`,
+      status: 1,
+      rule: /the message of commit [0-9a-f]{7}:1: an awell-health repository that is not on the allowlist/,
+    },
+    {
+      message: `Merge pull request #3 from ${ORG}/notes\n\nSee ${ORG}/private-notes`,
+      status: 1,
+      rule: /the message of commit [0-9a-f]{7}:3: an awell-health repository that is not on the allowlist/,
+    },
+    {
+      message: `Merge pull request #4 from ${ORG}/${AWELL_ID}`,
+      status: 1,
+      rule: /the message of commit [0-9a-f]{7}:1: an awell id that is not a project customers query/,
+    },
+    {
+      message: `Merge pull request #5 from Awel${'l-Health'}/private-notes`,
+      status: 1,
+      rule: /the message of commit [0-9a-f]{7}:1: an awell-health repository that is not on the allowlist/,
+    },
   ]
   for (const { message, status, rule } of cases) {
     const dir = makeRepo({ 'README.md': 'Nothing to see.\n' }, message)
