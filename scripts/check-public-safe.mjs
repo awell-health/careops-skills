@@ -21,13 +21,14 @@
 
 import { execFileSync } from 'node:child_process'
 
-// Hosts a file or commit message may link to or name. anthropic.com and GitHub's
-// noreply domain appear in commit trailers.
+// Hosts a file, commit message or pull request may link to or name. anthropic.com,
+// claude.com and GitHub's noreply domain appear in commit trailers and PR footers.
 const ALLOWED_HOSTS = new Set([
   'awellhealth.com',
   'docs.awellhealth.com',
   'github.com',
   'code.claude.com',
+  'claude.com',
   'anthropic.com',
   'users.noreply.github.com',
 ])
